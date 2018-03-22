@@ -28,6 +28,26 @@ One thing you'll notice, if you look in the 's', 'c', and 'mats' directories is 
 
 You'll also notice in the 's' directory that there is a '[machine-type].def' directory for each Chez Scheme machine type.  This file contains machine-specific information, like the size of various integer types, the endianness of the machine, and the name of the machine architecture file.  You'll need to add a version of this file for your new platform.
 
+To create this file : '[machine-type].def' you should be able to get some help, if you don't know the numbers by heard, by creating, compiling and executing (for the target arch) the following C file:
+```C
+#include <stdio.h>
+#include <stddef.h>
+#include <time.h>
+
+int main(void) {
+  printf("sizeof(ptr) = %d\n", sizeof(void*));
+  printf("sizeof(int) = %d\n", sizeof(int));
+  printf("sizeof(short) = %d\n", sizeof(short));
+  printf("sizeof(long) = %d\n", sizeof(long));
+  printf("sizeof(long long) = %d\n", sizeof(long long));
+  printf("sizeof(size_t) = %d\n", sizeof(size_t));
+  printf("sizeof(ptrdiff_t) = %d\n", sizeof(ptrdiff_t));
+  printf("sizeof(wchar_t) = %d\n", sizeof(wchar_t));
+  printf("sizeof(time_t) = %d\n", sizeof(time_t));
+  return 0;
+}
+```
+
 With this, you should be able to use the 'workarea' script to give you a new directory for your machine type.  You may also want to create an architecture specific file (like the 'x86.ss', 'x86_64.ss', 'ppc32.ss', or 'arm32.ss' files).  One way to create this is by copying an existing one for a similar architecture (say 'arm32.ss') to use as a starting point, this can be helpful as you get started, because it can allow you to build the C header files you need to compile the C run time and get that part compiling before you've finished the full port of the backend.
 
 ### Other build support files
