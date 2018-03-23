@@ -44,7 +44,7 @@
 (define-constant native-endianness 'little)
 (define-constant unaligned-floats #f)
 (define-constant unaligned-integers #t)
-(define-constant integer-divide-instruction #f)
+(define-constant integer-divide-instruction #t)
 (define-constant software-floating-point #f)
 (define-constant segment-table-levels 1)
 (features iconv expeditor)
