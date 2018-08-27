@@ -89,8 +89,7 @@
     [     %lr                   #f 14] ; %lr is trashed by 'c' calls including calls to hand-coded routines like get-room
   )
   (machine-dependent
-    [%sp                        #t 13]
-    [%pc                        #f 15]
+    [%sp %x2                        #t  2]
     [%Cfparg1 %Cfpretval %d0  %s0   #f  0] ; < 32: low bit goes in D, N, or M bit, high bits go in Vd, Vn, Vm
     [%Cfparg1b                %s1   #f  1]
     [%Cfparg2            %d1  %s2   #f  2]
