@@ -78,10 +78,14 @@
     [%cp  %r7                   #t  7]
     #;[%ac1]
     #;[%yp]
-    [     %r0  %Carg1 %Cretval  #f  0]
-    [     %r1  %Carg2           #f  1]
-    [     %r2  %Carg3           #f  2]
-    [     %r3  %Carg4           #f  3]
+    [     %x10  %a0 %Carg1 %Cretval1  #f  10]
+    [     %x11  %a1 %Carg2 %Cretval2  #f  11]
+    [     %x12  %a2 %Carg3            #f  12]
+    [     %x13  %a3 %Carg4            #f  13]
+    [     %x14  %a4 %Carg5            #f  14]
+    [     %x15  %a5 %Carg6            #f  15]
+    [     %x16  %a6 %Carg7            #f  16]
+    [     %x17  %a7 %Carg8            #f  17]    
     [     %lr                   #f 14] ; %lr is trashed by 'c' calls including calls to hand-coded routines like get-room
   )
   (machine-dependent
