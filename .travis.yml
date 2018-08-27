@@ -17,6 +17,10 @@ matrix:
       env: TARGET_MACHINE=a6le
     - os: linux
       env: TARGET_MACHINE=ta6le
+    - os: linux
+      env: TARGET_MACHINE=rv64le
+    - os: linux
+      env: TARGET_MACHINE=trv64le
 dist: trusty
 addons:
   apt:
