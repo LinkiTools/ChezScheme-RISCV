@@ -16,22 +16,30 @@
 ;;; SECTION 1: registers
 ;;; ABI:
 ;;;  Register usage:
-;;;   r0-r3 aka a1-a4: C argument registers, caller-save
-;;;   r4-r8, r10, r11 aka v1-v5, v7, v8: callee-save
-;;;   r9 aka v6, sb, or tr: platform-specific, callee-save
-;;;   r12 aka ip: caller-save (possibly usurped by linker at call boundaries)
-;;;   r13 aka sp: C stack pointer
-;;;   r14 aka lr: link register
-;;;   r15 aka pc: program counter
+;;;   x0 aka zero: Hardwired zero
+;;;   x1 aka ra: return address
+;;;   x2 aka sp: C stack pointer
+;;;   x3 aka gp: global pointer
+;;;   x4 aka tp: thread pointer
+;;;   x5-x7,x28-x31 aka t0-t6: Temporaries
+;;;   x10-x17 aka a0-a7: C argument registers where x10,x11 aka a0,a1 are return values
+;;;   x7 aka s0 aka fp: frame pointer
+;;;   x9,x18-x27 aka s1-s11: saved register
+;;;
+;;;   saved registers are preserved across a function call, temporaries are not
 ;;;   --------
-;;;   s0-s31: single-precision registers (with vfp-v2) overlap with d0-d15
-;;;   d0-d15: double-precision registers (with vfp-v2)
-;;;   d16-d31: double-precision registers (with vfp-v3)
+;;;   Support for floating point comes from F and D extensions respectively
+;;;   There a new 32-long registerbank for floating point registers.
+;;;   f0-f7,f28-f31 aka ft0-ft11: FP temporaries (12 registers)
+;;;   f8,f9,f18-f27 aka fs0-fs11: FP Saved registers (12 registers)
+;;;   f10-f17 aka fa0-fa7: FP function argument, where f10 and f11 are return value (8 registers)
 ;;;  Alignment:
+;;;   ??? RISCV
 ;;;   double-floats & 64-bit integers are 8-byte aligned in structs
 ;;;   double-floats & 64-bit integers are 8-byte aligned on the stack
 ;;;   stack must be 8-byte aligned at call boundaries (otherwise 4-byte)
 ;;;  Parameter passing:
+;;;   ??? RISCV
 ;;;   8- and 16-bit integer arguments zero- or sign-extended to 32-bits
 ;;;   32-bit integer arguments passed in a1-a4, then on stack
 ;;;   64-bit integer arguments passed in a1 or a3, then on stack
@@ -51,21 +59,16 @@
 ;;;     (e.g., 15 singles, double => s0-s14, stack, stack)
 ;;;   stack grows downwards.  first stack args passed at lowest new frame address.
 ;;;   return address passed in LR
-;;; questions:
-;;;   least significant bit is always designated as bit 0...how does this affect
-;;;      bit fields in big-endian mode?
-;;; meta questions:
-;;;   should we have both little- and big-endian support?
-;;;   can pidora (or some other linux distribution) run using both little- and big-endian modes?
 
 (define-registers
+;; Use saved registers r18-r21 for %tc, %sfp, %ap and %trap
   (reserved
-    [%tc  %r9                   #t  9]
-    [%sfp %r10                  #t 10]
-    [%ap  %r5                   #t  5]
+    [%tc  %r18                   #t 18]
+    [%sfp %r19                   #t 19]
+    [%ap  %r20                   #t 20]
     #;[%esp]
     #;[%eap]
-    [%trap %r8                  #t  8])
+    [%trap %r21                  #t 21])
   (allocable
     [%ac0 %r4                   #t  4]
     [%xp  %r6                   #t  6]
