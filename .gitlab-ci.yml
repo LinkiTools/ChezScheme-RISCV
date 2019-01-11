@@ -4,7 +4,10 @@ variables:
 image: debian:stable-slim
   
 build:
+  only:
+    - wip-riscv
   before_script:
+    - apt-get update && apt-get install -y git curl
     - ./configure
     - make
   script:
