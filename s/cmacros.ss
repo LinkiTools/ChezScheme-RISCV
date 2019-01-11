@@ -497,7 +497,8 @@
   (ppc reloc-ppccall reloc-ppcload)
   (x86_64 reloc-x86_64-call reloc-x86_64-jump)
   (arm32 reloc-arm32-abs reloc-arm32-call reloc-arm32-jump)
-  (ppc32 reloc-ppc32-abs reloc-ppc32-call reloc-ppc32-jump))
+  (ppc32 reloc-ppc32-abs reloc-ppc32-call reloc-ppc32-jump)
+  (rv64 reloc-rel))
 
 (constant-case ptr-bits
   [(64)
