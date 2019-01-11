@@ -46,5 +46,5 @@
 (define-constant unaligned-integers #t)
 (define-constant integer-divide-instruction #t)
 (define-constant software-floating-point #f)
-(define-constant segment-table-levels 1)
+(define-constant segment-table-levels 2)
 (features iconv expeditor)
