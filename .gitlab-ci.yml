@@ -7,7 +7,7 @@ build:
   only:
     - wip-riscv
   before_script:
-    - apt-get update && apt-get install -y git curl
+    - apt-get update && apt-get install -y git curl make gcc libncurses5-dev uuid-dev libx11-xcb-dev
     - ./configure
     - make
   script:
