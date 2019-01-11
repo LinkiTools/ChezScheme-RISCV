@@ -14,3 +14,15 @@ build:
     - mkdir boot/rv64le
     - cd a6le
     - make -f Mf-boot rv64le.boot
+
+build:threaded:
+  only:    
+    - wip-riscv
+  before_script:
+    - apt-get update && apt-get install -y git curl make gcc libncurses5-dev uuid-dev libx11-xcb-dev
+    - ./configure --threads
+    - make
+  script:
+    - mkdir boot/trv64le
+    - cd ta6le
+    - make -f Mf-boot trv64le.boot
