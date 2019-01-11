@@ -13,4 +13,4 @@ build:
   script:
     - mkdir boot/rv64le
     - cd a6le
-    - make -f Mf-boot -m=rv64le
+    - make -f Mf-boot rv64le.boot
