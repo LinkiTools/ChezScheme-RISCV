@@ -1,0 +1,13 @@
+variables:
+  DOCKER_DRIVER: "overlay2"
+
+image: debian:stable-slim
+  
+build:
+  before_script:
+    - ./configure
+    - make
+  script:
+    - mkdir boot/rv64le
+    - cd a6le
+    - make -f Mf-boot -m=rv64le
