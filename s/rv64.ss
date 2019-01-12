@@ -1,5 +1,5 @@
 ;;; rv64.ss
-;;; Copyright 2018 Linki Tools UG
+;;; Copyright 2018, 2019 Linki Tools UG
 ;;; 
 ;;; Licensed under the Apache License, Version 2.0 (the "License");
 ;;; you may not use this file except in compliance with the License.
@@ -60,59 +60,54 @@
 ;;;   stack grows downwards.  first stack args passed at lowest new frame address.
 ;;;   return address passed in LR
 
+;; Mapping of scheme specific task registers to registers of the CPU
 (define-registers
 ;; Use saved registers r18-r21 for %tc, %sfp, %ap and %trap
   (reserved
-    [%tc  %r18                   #t 18]
-    [%sfp %r19                   #t 19]
-    [%ap  %r20                   #t 20]
-    #;[%esp]
-    #;[%eap]
-    [%trap %r21                  #t 21])
+    ;; Three or more cols for each definition
+    ;reg   alias ...   callee-save reg-mdinfo
+    [%tc   %x9 %s1     #t          9] ;; thread context
+    [%sfp  %x8 %s0 %fp #t          8] ;; scheme frame pointer
+    [%ap   %x10 %a0    #f         10] ;;  
+    #;[%esp]                          ;; end of stack pointer
+    #;[%eap]                          ;; end of allocation pointer
+    [%trap %x11 %a1    #f         11]);; tracks when scheme should check for interrupts
   (allocable
-    [%ac0 %r4                   #t  4]
-    [%xp  %r6                   #t  6]
-    [%ts  %ip                   #f 12]
-    [%td  %r11                  #t 11]
-    #;[%ret]
-    [%cp  %r7                   #t  7]
-    #;[%ac1]
-    #;[%yp]
-    [     %x10  %a0 %Carg1 %Cretval1  #f  10]
-    [     %x11  %a1 %Carg2 %Cretval2  #f  11]
-    [     %x12  %a2 %Carg3            #f  12]
-    [     %x13  %a3 %Carg4            #f  13]
-    [     %x14  %a4 %Carg5            #f  14]
-    [     %x15  %a5 %Carg6            #f  15]
-    [     %x16  %a6 %Carg7            #f  16]
-    [     %x17  %a7 %Carg8            #f  17]    
-    [     %lr                   #f 14] ; %lr is trashed by 'c' calls including calls to hand-coded routines like get-room
+    [%ac0  %x12 %a2    #f         12] ;; argument count
+    [%xp   %x13 %a3    #f         13] ;; used during alloc for the computed alloc spot
+    [%ts   %x14 %a4    #f         14] ;; special temps
+    [%td   %x15 %a5    #f         15] ;; special temps
+    #;[%ret]                           ;; return pointer - stopped being used
+    [%cp   %x16 %a6    #f         16] ;; closure pointer
+    #;[%ac1]                           ;; auxiliary - undefined, use mem refed from %tc instead
+    #;[%yp]                            ;; auxiliary - undefined, use mem refed from %tc instead
+    ;; Extra registers - length should match asm-arg-reg-max
+    [      %x1  %ra %Carg1 %Cretval1  #f  1]
+    [      %x3  %gp %Carg3            #f  3]
+    [      %x4  %tp %Carg4            #f  4]
+    [      %x5  %t0 %Carg5            #f  5]
+    [      %x6  %t1 %Carg6            #f  6]
+    [      %x7  %t2 %Carg7            #f  7]
+    [      %x17 %a7                   #f 17]
+    [      %x18 %s2                   #t 18]
+    [      %x19 %s3                   #t 19]
+    [      %x20 %s4                   #t 20]
+    [      %x21 %s5                   #t 21]
+    [      %x22 %s6                   #t 22]
+    [      %x23 %s7                   #t 23]
+    [      %x24 %s8                   #t 24]
+    [      %x25 %s9                   #t 25]
+    [      %x26 %s10                  #t 26]
+    [      %x27 %s11                  #t 27]
+    [      %x28 %t3                   #f 28]
+    [      %x29 %t4                   #f 29]
+    [      %x30 %t5                   #f 30]
+    [      %x31 %t6                   #f 31]
   )
   (machine-dependent
-    [%sp %x2                        #t  2]
-    [%Cfparg1 %Cfpretval %d0  %s0   #f  0] ; < 32: low bit goes in D, N, or M bit, high bits go in Vd, Vn, Vm
-    [%Cfparg1b                %s1   #f  1]
-    [%Cfparg2            %d1  %s2   #f  2]
-    [%Cfparg2b                %s3   #f  3]
-    [%Cfparg3            %d2  %s4   #f  4]
-    [%Cfparg3b                %s5   #f  5]
-    [%Cfparg4            %d3  %s6   #f  6]
-    [%Cfparg4b                %s7   #f  7]
-    [%Cfparg5            %d4  %s8   #f  8]
-    [%Cfparg5b                %s9   #f  9]
-    [%Cfparg6            %d5  %s10  #f 10]
-    [%Cfparg6b                %s11  #f 11]
-    [%Cfparg7            %d6  %s12  #f 12]
-    [%Cfparg7b                %s13  #f 13]
-    [%Cfparg8            %d7  %s14  #f 14]
-    [%Cfparg8b                %s15  #f 15]
-    [%flreg1             %d8  %s16  #f 16]
-    [%flreg2             %d9  %s18  #f 18] 
-    ; etc.
-    #;[                  %d16       #f 32] ; >= 32: high bit goes in D, N, or M bit, low bits go in Vd, Vn, Vm
-    #;[                  %d17       #f 33]
-    ; etc.
-    ))
+   [%sp   %x2        #f         2]
+   [%pc              #f        32]
+   ))
 
 ;;; SECTION 2: instructions
 (module (md-handle-jump) ; also sets primitive handlers
